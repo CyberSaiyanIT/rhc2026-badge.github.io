@@ -1,0 +1,250 @@
+---
+import { withBase } from '../lib/url';
+const manifestUrl = withBase('firmware/manifest.json');
+---
+
+<div
+  class="flex flex-col gap-5 rounded-2xl border-2 border-black bg-white p-5 text-black sm:p-6"
+  data-flasher
+  data-manifest={manifestUrl}
+>
+  <div
+    class="hidden rounded-lg border-2 border-accent bg-accent-soft p-4 font-bold"
+    data-flasher-unsupported
+    role="alert"
+  >
+    This browser cannot talk to serial devices. Open this page on a desktop with Chrome, Edge or another Chromium
+    browser (Web Serial is required).
+  </div>
+
+  <dl class="grid gap-3 text-sm sm:grid-cols-3" data-flasher-info>
+    <div>
+      <dt class="font-bold text-black/60">Firmware</dt>
+      <dd class="font-bold" data-fw-name>Loading…</dd>
+    </div>
+    <div>
+      <dt class="font-bold text-black/60">Version</dt>
+      <dd class="font-bold" data-fw-version>–</dd>
+    </div>
+    <div>
+      <dt class="font-bold text-black/60">Size · flash address</dt>
+      <dd class="font-bold" data-fw-size>–</dd>
+    </div>
+  </dl>
+
+  <div
+    class="hidden rounded-lg border-2 border-black bg-black/5 p-4"
+    data-flasher-missing
+    role="status"
+  >
+    No firmware has been published yet.
+  </div>
+
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <label class="flex flex-col gap-1 text-sm font-bold">
+      Baud rate
+      <select id="flash-baud" class="rounded-lg border-2 border-black bg-white px-3 py-2 font-normal" data-flasher-baud>
+        <option value="921600" selected>921600 (fast)</option>
+        <option value="460800">460800</option>
+        <option value="115200">115200 (safest)</option>
+      </select>
+    </label>
+    <label class="flex items-center gap-2 py-2 text-sm font-bold">
+      <input type="checkbox" id="flash-erase" class="h-5 w-5 accent-accent" data-flasher-erase />
+      Erase all flash first
+    </label>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-3">
+    <button type="button" class="btn btn-accent" data-flasher-start disabled>Connect &amp; flash</button>
+    <span class="text-sm text-black/60">Pick the badge's serial port in the browser prompt.</span>
+  </div>
+
+  <div class="flex flex-col gap-2" data-flasher-progress-wrap hidden>
+    <div class="flex justify-between text-sm font-bold">
+      <span data-flasher-status>Waiting…</span>
+      <span data-flasher-percent>0%</span>
+    </div>
+    <div class="h-4 overflow-hidden rounded-full border-2 border-black bg-white">
+      <div class="h-full w-0 bg-accent transition-[width]" data-flasher-bar></div>
+    </div>
+  </div>
+
+  <div class="hidden rounded-lg border-2 border-black bg-accent-soft p-4 font-bold" data-flasher-done role="status">
+    Done! The badge has been restarted. If it does not boot, press RESET.
+  </div>
+  <div class="hidden rounded-lg border-2 border-accent bg-accent-soft p-4 font-bold text-accent-dark" data-flasher-error role="alert"></div>
+
+  <details class="text-sm">
+    <summary class="cursor-pointer font-bold">Show log</summary>
+    <pre
+      class="mt-2 max-h-64 overflow-auto whitespace-pre-wrap rounded-lg bg-black p-3 font-mono text-xs text-white"
+      data-flasher-log></pre>
+  </details>
+</div>
+
+<div class="flex flex-col gap-3 rounded-2xl border-2 border-black bg-white p-5 text-black sm:p-6" data-manual>
+  <h4 class="display text-lg">Not using Chromium? Prefer the command line?</h4>
+  <p class="leading-relaxed text-black/80">
+    Download{' '}<a class="font-bold text-accent underline" href={withBase('firmware/firmware.bin')} download>firmware.bin</a>, install{' '}<a class="font-bold text-accent underline" href="https://docs.espressif.com/projects/esptool/" rel="noopener">esptool</a>{' '}(<code class="font-bold">pip install esptool</code>) and, with the badge in bootloader mode, run:
+  </p>
+  <div class="relative">
+    <pre class="overflow-x-auto rounded-lg bg-black p-4 pr-24 font-mono text-sm text-white" data-manual-cmd>esptool.py --chip esp32s3 --port PORT --baud 921600 write_flash 0x0 firmware.bin</pre>
+    <button type="button" class="absolute right-2 top-2 rounded-md bg-white px-3 py-1 text-sm font-bold text-black hover:bg-accent hover:text-white" data-manual-copy>Copy</button>
+  </div>
+  <p class="text-sm text-black/70">
+    Replace{' '}<code class="font-bold">PORT</code>{' '}with the badge's serial port:{' '}<code class="font-bold">COM3</code>{' '}on Windows,{' '}<code class="font-bold">/dev/ttyACM0</code>{' '}on Linux,{' '}<code class="font-bold">/dev/cu.usbmodem*</code>{' '}on macOS. Newer esptool versions also accept{' '}<code class="font-bold">esptool</code>{' '}and{' '}<code class="font-bold">write-flash</code>.
+  </p>
+</div>
+
+<script>
+  const cmd = document.querySelector<HTMLElement>('[data-manual-cmd]');
+  const copy = document.querySelector<HTMLButtonElement>('[data-manual-copy]');
+  copy?.addEventListener('click', async () => {
+    const text = cmd?.textContent ?? '';
+    try {
+      await navigator.clipboard.writeText(text);
+      copy.textContent = 'Copied';
+    } catch {
+      const sel = window.getSelection();
+      const r = document.createRange();
+      if (cmd && sel) { r.selectNodeContents(cmd); sel.removeAllRanges(); sel.addRange(r); }
+      copy.textContent = 'Press Ctrl+C';
+    }
+    setTimeout(() => { copy.textContent = 'Copy'; }, 2000);
+  });
+</script>
+
+<script>
+  import { ESPLoader, Transport } from 'esptool-js';
+
+  interface Manifest {
+    name: string;
+    version: string;
+    file: string;
+    address?: number;
+  }
+
+  const root = document.querySelector<HTMLElement>('[data-flasher]')!;
+  const q = <T extends HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
+
+  const startBtn = q<HTMLButtonElement>('[data-flasher-start]');
+  const unsupported = q('[data-flasher-unsupported]');
+  const missing = q('[data-flasher-missing]');
+  const progressWrap = q('[data-flasher-progress-wrap]');
+  const bar = q('[data-flasher-bar]');
+  const percent = q('[data-flasher-percent]');
+  const statusEl = q('[data-flasher-status]');
+  const doneEl = q('[data-flasher-done]');
+  const errorEl = q('[data-flasher-error]');
+  const logEl = q('[data-flasher-log]');
+  const baudEl = q<HTMLSelectElement>('[data-flasher-baud]');
+  const eraseEl = q<HTMLInputElement>('[data-flasher-erase]');
+
+  let manifest: Manifest | null = null;
+  let firmwareUrl = '';
+
+  const log = (line: string) => {
+    logEl.textContent += line;
+    logEl.scrollTop = logEl.scrollHeight;
+  };
+  const setProgress = (p: number, text?: string) => {
+    progressWrap.hidden = false;
+    const v = Math.max(0, Math.min(100, Math.round(p)));
+    bar.style.width = v + '%';
+    percent.textContent = v + '%';
+    if (text) statusEl.textContent = text;
+  };
+  const fmtSize = (n: number) => (n > 1024 * 1024 ? (n / 1024 / 1024).toFixed(2) + ' MB' : (n / 1024).toFixed(1) + ' KB');
+
+  if (!('serial' in navigator)) {
+    unsupported.classList.remove('hidden');
+  }
+
+  async function loadManifest() {
+    try {
+      const res = await fetch(root.dataset.manifest!, { cache: 'no-cache' });
+      if (!res.ok) throw new Error('manifest ' + res.status);
+      manifest = (await res.json()) as Manifest;
+      firmwareUrl = new URL(manifest.file, new URL(root.dataset.manifest!, location.href)).toString();
+      const head = await fetch(firmwareUrl, { method: 'HEAD', cache: 'no-cache' });
+      if (!head.ok) throw new Error('firmware ' + head.status);
+      const len = Number(head.headers.get('content-length') || 0);
+      q('[data-fw-name]').textContent = manifest.name;
+      q('[data-fw-version]').textContent = manifest.version;
+      const addr = manifest.address ?? 0;
+      q('[data-fw-size]').textContent = `${len ? fmtSize(len) : 'n/a'} · 0x${addr.toString(16)}`;
+      if ('serial' in navigator) startBtn.disabled = false;
+    } catch (e) {
+      q('[data-fw-name]').textContent = 'Not available';
+      missing.classList.remove('hidden');
+    }
+  }
+
+  async function flash() {
+    if (!manifest) return;
+    errorEl.classList.add('hidden');
+    doneEl.classList.add('hidden');
+    logEl.textContent = '';
+    startBtn.disabled = true;
+    setProgress(0, 'Choose the serial port…');
+
+    let transport: Transport | null = null;
+    try {
+      const port = await (navigator as any).serial.requestPort();
+      transport = new Transport(port, false);
+      const baud = Number(baudEl.value);
+      const loader = new ESPLoader({
+        transport,
+        baudrate: baud,
+        romBaudrate: 115200,
+        terminal: {
+          clean: () => { logEl.textContent = ''; },
+          writeLine: (d: string) => log(d + '\n'),
+          write: (d: string) => log(d),
+        },
+      });
+
+      setProgress(0, 'Connecting to the badge…');
+      const chip = await loader.main();
+      log(`Connected: ${chip}\n`);
+
+      setProgress(0, 'Downloading firmware…');
+      const res = await fetch(firmwareUrl, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`Cannot download the firmware (HTTP ${res.status}).`);
+      const data = new Uint8Array(await res.arrayBuffer());
+      log(`Firmware: ${data.length} bytes\n`);
+
+      setProgress(0, 'Flashing…');
+      await loader.writeFlash({
+        fileArray: [{ data, address: manifest.address ?? 0 }],
+        flashSize: 'keep',
+        flashMode: 'keep',
+        flashFreq: 'keep',
+        eraseAll: eraseEl.checked,
+        compress: true,
+        reportProgress: (_i, written, total) => setProgress((written / total) * 100, 'Flashing…'),
+      });
+
+      setProgress(100, 'Restarting the badge…');
+      await loader.after();
+      doneEl.classList.remove('hidden');
+      setProgress(100, 'Finished');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const cancelled = /No port selected|cancel/i.test(msg);
+      errorEl.textContent = cancelled
+        ? 'No port selected. Click the button again and choose the badge.'
+        : `Flashing failed: ${msg} Hold BOOT (step 4), reconnect the cable and try again.`;
+      errorEl.classList.remove('hidden');
+      log(`\nError: ${msg}\n`);
+      progressWrap.hidden = true;
+    } finally {
+      try { await transport?.disconnect(); } catch { /* port already closed */ }
+      startBtn.disabled = false;
+    }
+  }
+
+  startBtn.addEventListener('click', flash);
+  loadManifest();
+</script>

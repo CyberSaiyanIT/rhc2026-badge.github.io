@@ -1,0 +1,231 @@
+---
+import Base from '../layouts/Base.astro';
+import Carousel from '../components/Carousel.astro';
+import UsbVisual from '../components/UsbVisual.astro';
+import BootVisual from '../components/BootVisual.astro';
+import BadgeIllustration from '../components/BadgeIllustration.astro';
+import Flasher from '../components/Flasher.astro';
+import carousels from '../data/carousels.json';
+import { withBase } from '../lib/url';
+
+const releaseTag = import.meta.env.PUBLIC_RELEASE_TAG;
+
+const steps = [
+  { id: 'screen', short: 'Screen', title: 'Connect the screen' },
+  { id: 'battery', short: 'Battery', title: 'Connect the battery' },
+  { id: 'usb', short: 'USB-C', title: 'Plug in the USB-C cable' },
+  { id: 'boot', short: 'Bootloader', title: 'Enter bootloader mode' },
+  { id: 'flash', short: 'Flash', title: 'Flash the firmware' },
+];
+
+const features = [
+  'ESP32-S3',
+  '2.4" TFT screen',
+  'Stereo audio + speaker',
+  'LiPo battery',
+  'USB-C',
+  'microSD slot',
+  'NFC Reader',
+  'Buttons',
+  'Camp Agenda',
+  'Camp Map',
+  'Retro Games',
+  'Cyber Trivia'
+];
+---
+
+<Base
+  title="RomHack Camp 2026 Badge – Getting started"
+  description="Assemble, connect and flash your RomHack Camp 2026 badge in five steps."
+>
+  <header class="bg-accent text-white">
+    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+      <!-- Placeholder: replace public/logo.png with the official logo (same file name). -->
+      <a href={withBase('')} aria-label="RomHack">
+        <img src={withBase('logo.png')} alt="RomHack" class="h-12 w-auto sm:h-14" width="216" height="60" />
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="mx-auto grid max-w-6xl items-center gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 md:py-20">
+      <div class="flex flex-col gap-6">
+        <h1 class="display text-4xl sm:text-5xl lg:text-6xl">Your badge, up and running</h1>
+        <p class="max-w-prose text-lg leading-relaxed text-black/80">
+          The RomHack 2026 badge is a pocket-sized ESP32-S3 computer inspired by the iconic Sony Walkman WM-22.
+          Packed with a color screen, built-in audio, tactile buttons, and a rechargeable battery, it's built for hands-on hacking.<br />
+          Follow these five simple steps to assemble your badge, connect it, and flash your first firmware, all directly from this page.
+        </p>
+        <ul class="flex flex-wrap gap-2">
+          {
+            features.map((f) => (
+              <li class="rounded-full border-2 border-black px-3 py-1 text-sm font-bold">{f}</li>
+            ))
+          }
+        </ul>
+        <div>
+          <a href="#wizard" class="btn btn-accent">Start the setup</a>
+        </div>
+      </div>
+      <div class="flex justify-center">
+        <BadgeIllustration />
+      </div>
+    </section>
+
+    <!-- Separator -->
+    <div class="flex justify-center px-4" aria-hidden="true">
+      <div class="h-1.5 w-40 rounded-full bg-accent"></div>
+    </div>
+
+    <!-- Wizard -->
+    <section id="wizard" class="bg-white" data-wizard>
+      <div class="mx-auto max-w-4xl px-4 py-12 sm:px-6 md:py-16">
+        <h2 class="display mb-8 text-3xl sm:text-4xl">Setup guide</h2>
+
+        <ol class="mb-10 grid grid-cols-5 gap-2" aria-label="Setup steps">
+          {
+            steps.map((s, i) => (
+              <li>
+                <button
+                  type="button"
+                  class="group flex w-full flex-col items-center gap-2 text-center"
+                  data-wizard-tab={i}
+                  aria-label={`Step ${i + 1}: ${s.title}`}
+                >
+                  <span class="display flex h-10 w-10 items-center justify-center rounded-full border-2 border-black bg-white text-lg transition group-aria-[current=step]:border-accent group-aria-[current=step]:bg-accent group-aria-[current=step]:text-white group-data-[done=true]:border-black group-data-[done=true]:bg-black group-data-[done=true]:text-white">
+                    {i + 1}
+                  </span>
+                  <span class="hidden text-xs font-bold sm:block">{s.short}</span>
+                </button>
+              </li>
+            ))
+          }
+        </ol>
+
+        <div data-wizard-panels>
+          <!-- 1 -->
+          <article data-wizard-panel="0" class="flex flex-col gap-6" aria-labelledby="step-screen">
+            <header class="flex flex-col gap-2">
+              <p class="display text-sm text-accent">Step 1 of 5</p>
+              <h3 id="step-screen" class="display text-2xl sm:text-3xl">Connect the screen</h3>
+              <p class="max-w-prose leading-relaxed text-black/80">
+                Pass the display's flat cable through the slot, open the connector on the back, insert the flat cable
+                and lock it. Then stick the screen into its frame.
+              </p>
+            </header>
+            <Carousel slides={carousels.screen} label="Screen installation steps" />
+          </article>
+
+          <!-- 2 -->
+          <article data-wizard-panel="1" class="flex flex-col gap-6" aria-labelledby="step-battery">
+            <header class="flex flex-col gap-2">
+              <p class="display text-sm text-accent">Step 2 of 5</p>
+              <h3 id="step-battery" class="display text-2xl sm:text-3xl">Connect the battery</h3>
+              <p class="max-w-prose leading-relaxed text-black/80">
+                The speaker cable sits right where the battery cable needs to go. Lift the speaker wires slightly and
+                route the battery cable under them. The double-sided tape for the battery is supplied separately.
+              </p>
+            </header>
+            <Carousel slides={carousels.battery} label="Battery installation steps" />
+          </article>
+
+          <!-- 3 -->
+          <article data-wizard-panel="2" class="flex flex-col gap-6" aria-labelledby="step-usb">
+            <header class="flex flex-col gap-2">
+              <p class="display text-sm text-accent">Step 3 of 5</p>
+              <h3 id="step-usb" class="display text-2xl sm:text-3xl">Plug in the USB-C cable</h3>
+              <p class="max-w-prose leading-relaxed text-black/80">
+                Connect the badge to your computer with a USB-C data cable. Use the port on the left edge of the back
+                of the badge.
+              </p>
+            </header>
+            <UsbVisual />
+            <ul class="list-disc space-y-1 pl-5 text-black/80">
+              <li>Use a cable that carries data; some charge-only cables will not work.</li>
+              <li>Plug straight into your computer if you can, rather than through a hub.</li>
+              <li>The CHARGING LED on the badge shows the battery is charging.</li>
+            </ul>
+          </article>
+
+          <!-- 4 -->
+          <article data-wizard-panel="3" class="flex flex-col gap-6" aria-labelledby="step-boot">
+            <header class="flex flex-col gap-2">
+              <p class="display text-sm text-accent">Step 4 of 5</p>
+              <h3 id="step-boot" class="display text-2xl sm:text-3xl">Enter bootloader mode</h3>
+              <p class="max-w-prose leading-relaxed text-black/80">
+                Hold the BOOT button, tap RESET, then release BOOT. The badge stops running its current program and
+                waits for new firmware. This also breaks a bootloop, where the badge keeps restarting.
+              </p>
+            </header>
+            <BootVisual />
+            <ul class="list-disc space-y-1 pl-5 text-black/80">
+              <li>Keep BOOT pressed while you plug the USB-C cable in if the badge is stuck restarting.</li>
+              <li>The screen may stay blank in this mode. That is normal.</li>
+              <li>If your computer does not show a new serial port, unplug and repeat.</li>
+            </ul>
+          </article>
+
+          <!-- 5 -->
+          <article data-wizard-panel="4" class="flex flex-col gap-6" aria-labelledby="step-flash">
+            <header class="flex flex-col gap-2">
+              <p class="display text-sm text-accent">Step 5 of 5</p>
+              <h3 id="step-flash" class="display text-2xl sm:text-3xl">Flash the firmware</h3>
+              <p class="max-w-prose leading-relaxed text-black/80">
+                <b>This feature requires a Chromium-based browser to access the Serial port.</b><br />
+                With the badge in bootloader mode, press the button below and choose its serial port. The latest
+                firmware from this repository is written to address <code class="font-bold">0x0</code>.
+              </p>
+            </header>
+            <Flasher />
+          </article>
+        </div>
+
+        <div class="mt-10 flex items-center justify-between gap-4 border-t-2 border-black pt-6">
+          <button type="button" class="btn" data-wizard-prev>Back</button>
+          <button type="button" class="btn btn-accent" data-wizard-next>Next</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t-2 border-black">
+    <div class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-sm text-black/70 sm:flex-row text-center justify-center sm:px-6">
+      <p>RomHack is made with <span class="text-accent" aria-hidden="true">♥</span> by <a href="https://www.cybersaiyan.it">Cyber Saiyan</a></p>
+      {releaseTag && <p>Release: <code>{releaseTag}</code></p>}
+    </div>
+  </footer>
+</Base>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-wizard]')!;
+  const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-wizard-panel]'));
+  const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-wizard-tab]'));
+  const prev = root.querySelector<HTMLButtonElement>('[data-wizard-prev]')!;
+  const next = root.querySelector<HTMLButtonElement>('[data-wizard-next]')!;
+  const n = panels.length;
+  let current = 0;
+
+  function show(i: number, scroll = true) {
+    current = Math.max(0, Math.min(n - 1, i));
+    panels.forEach((p, j) => { p.hidden = j !== current; });
+    tabs.forEach((t, j) => {
+      if (j === current) t.setAttribute('aria-current', 'step');
+      else t.removeAttribute('aria-current');
+      t.dataset.done = String(j < current);
+    });
+    prev.disabled = current === 0;
+    next.hidden = current === n - 1;
+    history.replaceState(null, '', `#step-${current + 1}`);
+    if (scroll) root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Carousels measure their width on load; nudge them once they become visible.
+    window.dispatchEvent(new Event('resize'));
+  }
+
+  tabs.forEach((t, i) => t.addEventListener('click', () => show(i)));
+  prev.addEventListener('click', () => show(current - 1));
+  next.addEventListener('click', () => show(current + 1));
+
+  const m = location.hash.match(/^#step-(\d)$/);
+  show(m ? Number(m[1]) - 1 : 0, false);
+</script>

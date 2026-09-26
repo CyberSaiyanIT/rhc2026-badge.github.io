@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/* Lato: served locally from node_modules (@fontsource), no CDN. */
+@import "@fontsource/lato/latin-400.css";
+@import "@fontsource/lato/latin-700.css";
+@import "@fontsource/lato/latin-900.css";
+
+@theme {
+  --color-accent: #e80b60;
+  --color-accent-dark: #b8084c;
+  --color-accent-soft: #fde7ef;
+  --color-ink: #000000;
+  --font-sans: "Lato", ui-sans-serif, system-ui, sans-serif;
+  /* Evogria is not on npm: drop the file in public/fonts/ (see README).
+     Until then headings fall back to Lato Black in capitals. */
+  --font-display: "Evogria", "Lato", ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    background: #fff;
+    color: #000;
+  }
+  body {
+    font-family: var(--font-sans);
+    background: #fff;
+    color: #000;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@layer components {
+  .display {
+    font-family: var(--font-display);
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    line-height: 1.05;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    font-weight: 700;
+    border: 2px solid #000;
+    background: #fff;
+    color: #000;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .btn:hover:not(:disabled) {
+    background: #000;
+    color: #fff;
+  }
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-dark {
+    background: #000;
+    border-color: #000;
+    color: #fff;
+  }
+  .btn-dark:hover:not(:disabled) {
+    background: #fff;
+    color: #000;
+  }
+  .btn-accent {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+  }
+  .btn-accent:hover:not(:disabled) {
+    background: var(--color-accent-dark);
+    border-color: var(--color-accent-dark);
+    color: #fff;
+  }
+}

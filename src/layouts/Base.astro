@@ -1,0 +1,53 @@
+---
+import '../styles/global.css';
+import fs from 'node:fs';
+import path from 'node:path';
+import { withBase } from '../lib/url';
+
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+
+// Optional local Evogria font: any of these files in public/fonts/ is picked up automatically.
+const candidates: Array<[string, string]> = [
+  ['Evogria.woff2', 'woff2'],
+  ['Evogria.woff', 'woff'],
+  ['Evogria.otf', 'opentype'],
+  ['Evogria.ttf', 'truetype'],
+];
+const sources = candidates
+  .filter(([file]) => fs.existsSync(path.join(process.cwd(), 'public', 'fonts', file)))
+  .map(([file, format]) => `url("${withBase('fonts/' + file)}") format("${format}")`);
+const evogriaCss = sources.length
+  ? `@font-face{font-family:"Evogria";src:${sources.join(',')};font-weight:400 900;font-style:normal;font-display:swap}`
+  : '';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#E80B60" />
+    <link rel="icon" href={withBase('favicon.svg')} type="image/svg+xml" />
+    {evogriaCss && <style is:inline set:html={evogriaCss} />}
+  </head>
+  <body class="min-h-screen antialiased">
+    <!-- Shared SVG defs used by the step illustrations -->
+    <svg width="0" height="0" class="absolute" aria-hidden="true" focusable="false">
+      <defs>
+        <marker id="ar" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="10" refY="8" orient="auto">
+          <path d="M0 0L16 8L0 16z" fill="#F4F1EA"></path>
+        </marker>
+        <marker id="ar-k" markerUnits="userSpaceOnUse" markerWidth="16" markerHeight="16" refX="10" refY="8" orient="auto">
+          <path d="M0 0L16 8L0 16z" fill="#000"></path>
+        </marker>
+      </defs>
+    </svg>
+    <slot />
+  </body>
+</html>
