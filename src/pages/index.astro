@@ -5,6 +5,7 @@ import UsbVisual from '../components/UsbVisual.astro';
 import BootVisual from '../components/BootVisual.astro';
 import BadgeIllustration from '../components/BadgeIllustration.astro';
 import Flasher from '../components/Flasher.astro';
+import TrabodaLogo from '../components/TrabodaLogo.astro';
 import carousels from '../data/carousels.json';
 import { withBase } from '../lib/url';
 
@@ -154,6 +155,7 @@ const features = [
               <p class="display text-sm text-accent">Step 4 of 5</p>
               <h3 id="step-boot" class="display text-2xl sm:text-3xl">Enter bootloader mode</h3>
               <p class="max-w-prose leading-relaxed text-black/80">
+                Make sure the badge is turned on by using the ON/OFF switch.
                 Hold the BOOT button, tap RESET, then release BOOT. The badge stops running its current program and
                 waits for new firmware. This also breaks a bootloop, where the badge keeps restarting.
               </p>
@@ -172,10 +174,40 @@ const features = [
               <p class="display text-sm text-accent">Step 5 of 5</p>
               <h3 id="step-flash" class="display text-2xl sm:text-3xl">Flash the firmware</h3>
               <p class="max-w-prose leading-relaxed text-black/80">
-                <b>This feature requires a Chromium-based browser to access the Serial port.</b><br />
-                With the badge in bootloader mode, press the button below and choose its serial port. The latest
-                firmware from this repository is written to address <code class="font-bold">0x0</code>.
+                <b>
+                If you are using Linux, please <u>make sure that your user has the right permissions</u> over the serial port.
+                </b>
               </p>
+              <details class="max-w-prose border-y border-black/20 py-3 text-sm">
+                <summary class="cursor-pointer font-bold">How to check</summary>
+                <ol class="mt-4 list-decimal space-y-5 pl-5 text-black/80">
+                  <li>
+                    <strong>Identify your serial port.</strong> Unplug and reconnect the badge, then run:
+                    <pre class="mt-2 overflow-x-auto rounded-md bg-black p-3 font-mono text-xs text-white sm:text-sm"><code>ls /dev/ttyACM* /dev/ttyUSB*</code></pre>
+                  </li>
+                  <li>
+                    <strong>Check its permissions.</strong> Replace the path if needed and note the owning group, usually <code class="font-bold">dialout</code>.
+                    <pre class="mt-2 overflow-x-auto rounded-md bg-black p-3 font-mono text-xs text-white sm:text-sm"><code>ls -l /dev/ttyACM0</code></pre>
+                  </li>
+                  <li>
+                    <strong>Grant access.</strong> Run the command, then sign out and back in before retrying.
+                    <pre class="mt-2 overflow-x-auto rounded-md bg-black p-3 font-mono text-xs text-white sm:text-sm"><code>sudo usermod -aG dialout $USER</code></pre>
+                  </li>
+                  <li>
+                    <strong>Create a udev rule if needed.</strong> Find the device IDs:
+                    <pre class="mt-2 overflow-x-auto rounded-md bg-black p-3 font-mono text-xs text-white sm:text-sm"><code>udevadm info --attribute-walk --name=/dev/ttyACM0</code></pre>
+                    <p class="mt-2">Create <code class="font-bold">/etc/udev/rules.d/99-romhack-badge.rules</code> with this content, replacing <code class="font-bold">VID</code> and <code class="font-bold">PID</code>:</p>
+                    <pre class="mt-2 overflow-x-auto rounded-md bg-black p-3 font-mono text-xs text-white sm:text-sm"><code>{'SUBSYSTEM=="tty", ATTRS{idVendor}=="VID", ATTRS{idProduct}=="PID", MODE="0660", GROUP="dialout"'}</code></pre>
+                  </li>
+                  <li>
+                    <strong>Reload udev.</strong> Run both commands, then reconnect the badge.
+                    <div class="mt-2 overflow-x-auto rounded-md bg-black p-3 font-mono text-xs text-white sm:text-sm">
+                      <code class="block">sudo udevadm control --reload-rules</code>
+                      <code class="mt-1 block">sudo udevadm trigger</code>
+                    </div>
+                  </li>
+                </ol>
+              </details>
             </header>
             <Flasher />
           </article>
@@ -190,7 +222,11 @@ const features = [
   </main>
 
   <footer class="border-t-2 border-black">
-    <div class="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 text-sm text-black/70 sm:flex-row text-center justify-center sm:px-6">
+    <div class="mx-auto flex max-w-6xl flex-col justify-center gap-2 px-4 py-8 text-center text-sm text-black/70 sm:px-6">
+      <p class="flex flex-col items-center justify-center gap-3 text-base text-black sm:flex-row">
+        <span>This badge came to life in collaboration with</span>
+        <TrabodaLogo />
+      </p>
       <p>RomHack is made with <span class="text-accent" aria-hidden="true">♥</span> by <a href="https://www.cybersaiyan.it">Cyber Saiyan</a></p>
       {releaseTag && <p>Release: <code>{releaseTag}</code></p>}
     </div>
