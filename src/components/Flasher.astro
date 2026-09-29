@@ -10,7 +10,7 @@ const manifestUrl = withBase('firmware/manifest.json');
 >
   <h4 class="display text-1xl sm:text-1xl">Web flasher - Chromium based browser required</h4>
   <p>
-    With the badge in bootloader mode, press the button below and choose its serial port. The latest
+    With the badge connected via USB and in bootloader mode, press the button below and choose it. The latest
     firmware from this repository is written to address <code class="font-bold">0x0</code>.</p>
   <div
     class="hidden rounded-lg border-2 border-accent bg-accent-soft p-4 font-bold"
@@ -44,24 +44,9 @@ const manifestUrl = withBase('firmware/manifest.json');
     No firmware has been published yet.
   </div>
 
-  <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
-    <label class="flex flex-col gap-1 text-sm font-bold">
-      Baud rate
-      <select id="flash-baud" class="rounded-lg border-2 border-black bg-white px-3 py-2 font-normal" data-flasher-baud>
-        <option value="921600" selected>921600 (fast)</option>
-        <option value="460800">460800</option>
-        <option value="115200">115200 (safest)</option>
-      </select>
-    </label>
-    <label class="flex items-center gap-2 py-2 text-sm font-bold">
-      <input type="checkbox" id="flash-erase" class="h-5 w-5 accent-accent" data-flasher-erase />
-      Erase all flash first
-    </label>
-  </div>
-
   <div class="flex flex-wrap items-center gap-3">
     <button type="button" class="btn btn-accent" data-flasher-start disabled>Connect &amp; flash</button>
-    <span class="text-sm text-black/60">Pick the badge's serial port in the browser prompt.</span>
+    <span class="text-sm text-black/60">Pick the badge's USB device in the browser prompt.</span>
   </div>
 
   <div class="flex flex-col gap-2" data-flasher-progress-wrap hidden>
@@ -142,8 +127,6 @@ const manifestUrl = withBase('firmware/manifest.json');
   const doneEl = q('[data-flasher-done]');
   const errorEl = q('[data-flasher-error]');
   const logEl = q('[data-flasher-log]');
-  const baudEl = q<HTMLSelectElement>('[data-flasher-baud]');
-  const eraseEl = q<HTMLInputElement>('[data-flasher-erase]');
 
   let manifest: Manifest | null = null;
   let firmwareUrl = '';
@@ -197,10 +180,9 @@ const manifestUrl = withBase('firmware/manifest.json');
     try {
       const port = await (navigator as any).serial.requestPort();
       transport = new Transport(port, false);
-      const baud = Number(baudEl.value);
       const loader = new ESPLoader({
         transport,
-        baudrate: baud,
+        baudrate: 921600,
         romBaudrate: 115200,
         terminal: {
           clean: () => { logEl.textContent = ''; },
@@ -225,7 +207,7 @@ const manifestUrl = withBase('firmware/manifest.json');
         flashSize: 'keep',
         flashMode: 'keep',
         flashFreq: 'keep',
-        eraseAll: eraseEl.checked,
+        eraseAll: false,
         compress: true,
         reportProgress: (_i, written, total) => setProgress((written / total) * 100, 'Flashing…'),
       });
