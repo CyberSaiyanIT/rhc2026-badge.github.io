@@ -1,0 +1,96 @@
+{
+    "sdkVersion": "0.8.0",
+    "created": "2026-09-29T19:00:00Z",
+    "gitCommit": "",
+    "apps": [
+        {
+            "appId": "tactility.vi",
+            "appVersionName": "0.1.0",
+            "appVersionCode": 1,
+            "appName": "Vi",
+            "appDescription": "BusyBox vi text editor",
+            "targetSdk": "0.8.0-dev",
+            "targetPlatforms": [
+                "esp32",
+                "esp32s3",
+                "esp32c6",
+                "esp32p4",
+                "posix-x86_64"
+            ],
+            "file": "tactility.vi-1.app"
+        },
+        {
+            "appId": "tactility.diceware",
+            "appVersionName": "0.18.0",
+            "appVersionCode": 18,
+            "appName": "Diceware",
+            "appDescription": "Password generator",
+            "targetSdk": "0.8.0-dev",
+            "targetPlatforms": [
+                "esp32",
+                "esp32s3",
+                "esp32c6",
+                "esp32p4"
+            ],
+            "file": "tactility.diceware-18.app"
+        },
+        {
+            "appId": "tactility.snake",
+            "appVersionName": "0.19.0",
+            "appVersionCode": 19,
+            "appName": "Snake",
+            "appDescription": "Classic Snake game",
+            "targetSdk": "0.8.0-dev",
+            "targetPlatforms": [
+                "esp32",
+                "esp32s3",
+                "esp32c6",
+                "esp32p4"
+            ],
+            "file": "tactility.snake-19.app"
+        },
+        {
+            "appId": "tactility.mediakeys",
+            "appVersionName": "0.16.0",
+            "appVersionCode": 16,
+            "appName": "Media Keys",
+            "appDescription": "Bluetooth media keys. Touch or Physical Keyboard control\\nB - previous, P - play/pause, N - next, M - mute, D - volume down, U - volume up.\\nQ or ESC to exit focus.",
+            "targetSdk": "0.8.0-dev",
+            "targetPlatforms": [
+                "esp32s3",
+                "esp32p4"
+            ],
+            "file": "tactility.mediakeys-16.app"
+        },
+        {
+            "appId": "tactility.calculator",
+            "appVersionName": "0.16.0",
+            "appVersionCode": 16,
+            "appName": "Calculator",
+            "appDescription": "",
+            "targetSdk": "0.8.0-dev",
+            "targetPlatforms": [
+                "esp32",
+                "esp32s3",
+                "esp32c6",
+                "esp32p4"
+            ],
+            "file": "tactility.calculator-16.app"
+        },
+        {
+            "appId": "tactility.brainfuck",
+            "appVersionName": "0.15.0",
+            "appVersionCode": 15,
+            "appName": "Brainfuck",
+            "appDescription": "Brainfuck esoteric language interpreter",
+            "targetSdk": "0.8.0-dev",
+            "targetPlatforms": [
+                "esp32",
+                "esp32s3",
+                "esp32c6",
+                "esp32p4"
+            ],
+            "file": "tactility.brainfuck-15.app"
+        }
+    ]
+}
