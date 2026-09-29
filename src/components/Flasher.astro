@@ -8,7 +8,7 @@ const manifestUrl = withBase('firmware/manifest.json');
   data-flasher
   data-manifest={manifestUrl}
 >
-  <h4 class="display text-1xl sm:text-1xl">Web flasher - Chromium based browser required</h4>
+  <h4 class="display text-1xl sm:text-1xl">Web flasher - Web Serial API required/h4>
   <p>
     With the badge connected via USB and in bootloader mode, press the button below and choose it. The latest
     firmware from this repository is written to address <code class="font-bold">0x0</code>.</p>
@@ -46,7 +46,7 @@ const manifestUrl = withBase('firmware/manifest.json');
 
   <div class="flex flex-wrap items-center gap-3">
     <button type="button" class="btn btn-accent" data-flasher-start disabled>Connect &amp; flash</button>
-    <span class="text-sm text-black/60">Pick the badge's USB device in the browser prompt.</span>
+    <span class="text-sm text-black/60">Pick the badge's serial port in the browser prompt.</span>
   </div>
 
   <div class="flex flex-col gap-2" data-flasher-progress-wrap hidden>
@@ -73,7 +73,7 @@ const manifestUrl = withBase('firmware/manifest.json');
 </div>
 
 <div class="flex flex-col gap-3 rounded-2xl border-2 border-black bg-white p-5 text-black sm:p-6" data-manual>
-  <h4 class="display text-lg">Not using Chromium? Prefer the command line?</h4>
+  <h4 class="display text-lg">Browser not supported? Prefer the command line?</h4>
   <p class="leading-relaxed text-black/80">
     Download{' '}<a class="font-bold text-accent underline" href={withBase('firmware/firmware.bin')} download>firmware.bin</a>, install{' '}<a class="font-bold text-accent underline" href="https://docs.espressif.com/projects/esptool/" rel="noopener">esptool</a>{' '}(<code class="font-bold">pip install esptool</code>) and, with the badge in bootloader mode, run:
   </p>
