@@ -1,6 +1,6 @@
 {
   "name": "RomHack Camp 2026 badge firmware",
-  "version": "0.3",
+  "version": "0.4",
   "file": "firmware.bin",
   "address": 0
 }
